@@ -1,6 +1,6 @@
 # Sorting Numbers
 
-An external sort implementation for 32-bit integers. Read about it [here](https://nicluo.com/).
+An external sort implementation for 32-bit integers. Read about it [here](https://nicluo.com/blog/sorting-a-billion-numbers/).
 
 ## Requirements
 
