@@ -33,10 +33,16 @@ The included shell script `sort.sh` sorts the input list at `input.txt` to `outp
 
 ## What does sort.sh do
 
-The sorting method used splits the input file into 12 parts. The GNU `split` program is used for this.
+The sorting method splits the input file into 12 parts. The GNU `split` program is used for this. Note: if the program is not using the alias `gsplit`, the script needs to be modified.
 
 On Mac OS X with `coreutils` installed, the `split` program is aliased as `gsplit` instead.
 
-A simple quick sort implementation sorts all individual files. The code is in `sort.cpp`.
+A simple quick sort implementation sorts individual parts. The code is in `sort.cpp`.
 
 A 12-way merge is used on the sorted sub lists to build the final output file. The code is in `merge.cpp`.
+
+# License
+
+The code is released under the MIT license:
+
+www.opensource.org/licenses/MIT
