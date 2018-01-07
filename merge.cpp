@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
+#include <queue>
 
 void printUsage(char* name) {
     std::cout << "usage: " << name << " -o output_file -f input_file ..." << std::endl;
@@ -14,8 +15,6 @@ struct Seq {
     std::ifstream source;
     
     Seq(char* filename) : source(filename) {}
-    
-    bool operator < (const Seq& rhs) { return value < rhs.value; }
 };
 
 bool next(Seq* seq) {
@@ -27,87 +26,18 @@ bool next(Seq* seq) {
     return false;
 }
 
-struct Node {
-    Seq* seq;
-    Node* left;
-    Node* right;
-    
-    Node(Seq* seq) : seq(seq), left(nullptr), right(nullptr) {}
-    
-    bool operator < (const Node& rhs) { return *seq < *(rhs.seq); }
-};
-
-Node* insert(Node* node, Node* tree) {
-    if(tree == NULL) {
-        return node;
-    }
-    
-    if(*node < *tree) {
-        tree->left = insert(node, tree->left);
-    } else {
-        tree->right = insert(node, tree->right);
-    }
-    
-    return tree;
-}
-
-Node* getMinimum(Node* tree) {
-    /* Should never reach this base case */
-    if (tree == NULL) {
-        return NULL;
-    }
-    
-    /* Keep traversing to the left */
-    if (tree->left == NULL) {
-        return tree;
-    } else {
-        return getMinimum(tree->left);
-    }
-}
-
-Node* popMinimum(Node* tree) {
-    /* Should never reach this base case */
-    if (tree == NULL) {
-        return NULL;
-    }
-    
-    /* If there are no left childs, this must be the minimum, since we're
-     popping this element, this should be replaced by the right child node.
-     In this case, the right child node should be removed. */
-    if (tree->left == NULL) {
-        if(tree->right == NULL) {
-            return NULL;
-        } else {
-            Node* right = tree->right;
-            tree->right = NULL;
-            return right;
-        }
-    } else {
-        tree->left = popMinimum(tree->left);
-        return tree;
-    }
-}
-
 void merge(std::vector<Seq*>& sequences, std::ofstream& output) {
-    Node* tree = NULL;
+    /* Greater<Seq*> comparator for Seq* to create min heap */
+    auto comp = []( const Seq* lhs, const Seq* rhs ) { return lhs->value > rhs->value; };
+    std::priority_queue<Seq*, std::vector<Seq*>, decltype(comp)> pq(sequences.begin(), sequences.end(), comp);
     
-    /* Initialize nodes and build the tree from non-empty sequences */
-    for (Seq* s : sequences) {
-        Node* node = new Node(s);
-        tree = insert(node, tree);
-    }
-    
-    while(tree != NULL) {
-        /* Get and pop minimum element */
-        Node* minimum = getMinimum(tree);
-        tree = popMinimum(tree);
+    while(!pq.empty()) {
+        Seq* top = pq.top();
+        pq.pop();
         
-        output << minimum->seq->value << "\n";
-        
-        /* Since the minimum element is a sequence, if it has a next value,
-         we can re-insert into the tree for the next iteration */
-        if(next(minimum->seq)) {
-            tree = insert(minimum, tree);
+        output << top->value << '\n';
+        if(next(top)) {
+            pq.push(top);
         }
     }
 }
