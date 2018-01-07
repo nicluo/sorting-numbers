@@ -32,10 +32,14 @@ void merge(std::vector<Seq*>& sequences, std::ofstream& output) {
     std::priority_queue<Seq*, std::vector<Seq*>, decltype(comp)> pq(sequences.begin(), sequences.end(), comp);
     
     while(!pq.empty()) {
+        /* Get and pop minimum element */
         Seq* top = pq.top();
         pq.pop();
         
         output << top->value << '\n';
+        
+        /* Since the minimum element is a sequence, if it has a next value,
+           we can re-insert into the heap for the next iteration */
         if(next(top)) {
             pq.push(top);
         }
